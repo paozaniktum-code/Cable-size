@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="th" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unit Conversion Quiz</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Sarabun', sans-serif; }
+    .shake { animation: shake 0.4s ease; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+    .pop { animation: pop 0.3s ease; }
+    @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.05)} 100%{transform:scale(1)} }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full">
+  <div id="app" class="h-full w-full bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 overflow-auto flex flex-col items-center justify-center p-6"><!-- Settings Panel -->
+   <div id="settings-panel" class="w-full max-w-lg bg-slate-800/80 backdrop-blur rounded-2xl p-6 border border-indigo-500/30 shadow-2xl">
+    <h1 id="title" class="text-2xl font-bold text-indigo-300 mb-6 text-center">แบบทดสอบแปลงหน่วย</h1>
+    <p class="text-slate-300 mb-4 text-sm">กำหนดค่าคู่ Number - หุน - มิลลิเมตร (คั่นด้วย Enter แต่ละบรรทัด เช่น "1,1,3.175")</p><textarea id="data-input" rows="6" class="w-full bg-slate-700 text-slate-100 rounded-lg p-3 border border-slate-600 focus:border-indigo-400 focus:outline-none text-sm mb-4" placeholder="number,หุน,มิลลิเมตร
+1,1,3.175
+2,2,6.35
+3,3,9.525"></textarea> <button id="start-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition">เริ่มทดสอบ</button>
+   </div><!-- Quiz Panel -->
+   <div id="quiz-panel" class="w-full max-w-lg bg-slate-800/80 backdrop-blur rounded-2xl p-6 border border-indigo-500/30 shadow-2xl hidden">
+    <div class="flex justify-between items-center mb-6">
+     <h2 class="text-xl font-bold text-indigo-300">ข้อที่ <span id="q-num">1</span></h2>
+     <div class="text-emerald-400 font-bold" id="score-display">
+      0/0
+     </div>
+    </div>
+    <div class="grid grid-cols-3 gap-4 mb-6">
+     <div><label class="text-slate-400 text-sm block mb-1">Number</label> <input id="f-number" type="text" class="w-full bg-slate-700 text-slate-100 rounded-lg p-3 border border-slate-600 focus:border-indigo-400 focus:outline-none text-center text-lg font-bold">
+     </div>
+     <div><label class="text-slate-400 text-sm block mb-1">หุน</label> <input id="f-hun" type="text" class="w-full bg-slate-700 text-slate-100 rounded-lg p-3 border border-slate-600 focus:border-indigo-400 focus:outline-none text-center text-lg font-bold">
+     </div>
+     <div><label class="text-slate-400 text-sm block mb-1">มิลลิเมตร</label> <input id="f-mm" type="text" class="w-full bg-slate-700 text-slate-100 rounded-lg p-3 border border-slate-600 focus:border-indigo-400 focus:outline-none text-center text-lg font-bold">
+     </div>
+    </div>
+    <div id="feedback" class="text-center mb-4 h-8 text-lg font-bold"></div>
+    <div class="flex gap-3"><button id="check-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition">ตรวจคำตอบ</button> <button id="next-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition hidden">ข้อถัดไป</button>
+    </div><button id="back-btn" class="w-full mt-3 text-slate-400 hover:text-slate-200 text-sm transition">← กลับหน้าตั้งค่า</button>
+   </div>
+  </div>
+  <script>
+  const defaultConfig = { app_title: 'แบบทดสอบแปลงหน่วย', primary_color: '#6366f1', background_color: '#0f172a', text_color: '#c7d2fe', surface_color: '#1e293b', accent_color: '#10b981' };
+
+  window.elementSdk.init({
+    defaultConfig,
+    onConfigChange: async (config) => {
+      document.getElementById('title').textContent = config.app_title || defaultConfig.app_title;
+    },
+    mapToCapabilities: (config) => ({
+      recolorables: [
+        { get: () => config.background_color || defaultConfig.background_color, set: v => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); } },
+        { get: () => config.surface_color || defaultConfig.surface_color, set: v => { config.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); } },
+        { get: () => config.text_color || defaultConfig.text_color, set: v => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); } },
+        { get: () => config.primary_color || defaultConfig.primary_color, set: v => { config.primary_color = v; window.elementSdk.setConfig({ primary_color: v }); } },
+        { get: () => config.accent_color || defaultConfig.accent_color, set: v => { config.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); } }
+      ],
+      borderables: [],
+      fontEditable: undefined,
+      fontSizeable: undefined
+    }),
+    mapToEditPanelValues: (config) => new Map([['app_title', config.app_title || defaultConfig.app_title]])
+  });
+
+  let dataset = [];
+  let current = null;
+  let hiddenField = '';
+  let correct = 0, total = 0, qIndex = 0;
+
+  const settingsPanel = document.getElementById('settings-panel');
+  const quizPanel = document.getElementById('quiz-panel');
+  const dataInput = document.getElementById('data-input');
+  const fNumber = document.getElementById('f-number');
+  const fHun = document.getElementById('f-hun');
+  const fMm = document.getElementById('f-mm');
+  const feedback = document.getElementById('feedback');
+  const checkBtn = document.getElementById('check-btn');
+  const nextBtn = document.getElementById('next-btn');
+
+  // Default data
+  dataInput.value = '1,1,3.175\n2,2,6.35\n3,3,9.525\n4,4,12.7\n5,5,15.875\n6,6,19.05\n7,7,22.225\n8,8,25.4';
+
+  document.getElementById('start-btn').addEventListener('click', () => {
+    dataset = dataInput.value.trim().split('\n').map(line => {
+      const parts = line.split(',').map(s => s.trim());
+      return { number: parts[0], hun: parts[1], mm: parts[2] };
+    }).filter(d => d.number && d.hun && d.mm);
+    if (dataset.length === 0) return;
+    correct = 0; total = 0; qIndex = 0;
+    settingsPanel.classList.add('hidden');
+    quizPanel.classList.remove('hidden');
+    nextQuestion();
+  });
+
+  document.getElementById('back-btn').addEventListener('click', () => {
+    quizPanel.classList.add('hidden');
+    settingsPanel.classList.remove('hidden');
+  });
+
+  function nextQuestion() {
+    qIndex++;
+    document.getElementById('q-num').textContent = qIndex;
+    current = dataset[Math.floor(Math.random() * dataset.length)];
+    const fields = ['number', 'hun', 'mm'];
+    hiddenField = fields[Math.floor(Math.random() * 3)];
+    // Randomly hide 1 or 2 fields
+    const hideTwo = Math.random() > 0.5;
+    const otherFields = fields.filter(f => f !== hiddenField);
+    const secondHidden = hideTwo ? otherFields[Math.floor(Math.random() * otherFields.length)] : null;
+
+    [fNumber, fHun, fMm].forEach(f => { f.value = ''; f.disabled = false; f.classList.remove('border-emerald-400', 'border-red-400'); });
+
+    // Show given values, hide others
+    const allHidden = [hiddenField];
+    if (secondHidden) allHidden.push(secondHidden);
+
+    if (!allHidden.includes('number')) { fNumber.value = current.number; fNumber.disabled = true; }
+    if (!allHidden.includes('hun')) { fHun.value = current.hun; fHun.disabled = true; }
+    if (!allHidden.includes('mm')) { fMm.value = current.mm; fMm.disabled = true; }
+
+    // Store which fields to check
+    current._hidden = allHidden;
+
+    feedback.textContent = '';
+    checkBtn.classList.remove('hidden');
+    nextBtn.classList.add('hidden');
+  }
+
+  checkBtn.addEventListener('click', () => {
+    const answers = { number: fNumber.value.trim(), hun: fHun.value.trim(), mm: fMm.value.trim() };
+    let allCorrect = true;
+
+    current._hidden.forEach(field => {
+      const input = field === 'number' ? fNumber : field === 'hun' ? fHun : fMm;
+      if (answers[field] === current[field]) {
+        input.classList.add('border-emerald-400');
+      } else {
+        input.classList.add('border-red-400');
+        input.value = `${answers[field] || '?'} → ${current[field]}`;
+        allCorrect = false;
+      }
+    });
+
+    total++;
+    if (allCorrect) { correct++; feedback.textContent = '✅ ถูกต้อง!'; feedback.className = 'text-center mb-4 h-8 text-lg font-bold text-emerald-400 pop'; }
+    else { feedback.textContent = '❌ ผิด ดูเฉลยด้านบน'; feedback.className = 'text-center mb-4 h-8 text-lg font-bold text-red-400 shake'; }
+
+    document.getElementById('score-display').textContent = `${correct}/${total}`;
+    checkBtn.classList.add('hidden');
+    nextBtn.classList.remove('hidden');
+  });
+
+  nextBtn.addEventListener('click', nextQuestion);
+
+  lucide.createIcons();
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9fadf80bf01c6042',t:'MTc3ODYzNjU3MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
