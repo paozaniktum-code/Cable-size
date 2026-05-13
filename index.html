@@ -1,166 +1,184 @@
 <!doctype html>
 <html lang="th" class="h-full">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Unit Conversion Quiz</title>
-  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
-  <script src="/_sdk/element_sdk.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&amp;display=swap" rel="stylesheet">
-  <style>
-    * { font-family: 'Sarabun', sans-serif; }
-    .shake { animation: shake 0.4s ease; }
-    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
-    .pop { animation: pop 0.3s ease; }
-    @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.05)} 100%{transform:scale(1)} }
-  </style>
-  <style>body { box-sizing: border-box; }</style>
-  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
- </head>
- <body class="h-full">
-  <div id="app" class="h-full w-full bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 overflow-auto flex flex-col items-center justify-center p-6"><!-- Settings Panel -->
-   <div id="settings-panel" class="w-full max-w-lg bg-slate-800/80 backdrop-blur rounded-2xl p-6 border border-indigo-500/30 shadow-2xl">
-    <h1 id="title" class="text-2xl font-bold text-indigo-300 mb-6 text-center">แบบทดสอบแปลงหน่วย</h1>
-    <p class="text-slate-300 mb-4 text-sm">กำหนดค่าคู่ Number - หุน - มิลลิเมตร (คั่นด้วย Enter แต่ละบรรทัด เช่น "1,1,3.175")</p><textarea id="data-input" rows="6" class="w-full bg-slate-700 text-slate-100 rounded-lg p-3 border border-slate-600 focus:border-indigo-400 focus:outline-none text-sm mb-4" placeholder="number,หุน,มิลลิเมตร
-1,1,3.175
-2,2,6.35
-3,3,9.525"></textarea> <button id="start-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition">เริ่มทดสอบ</button>
-   </div><!-- Quiz Panel -->
-   <div id="quiz-panel" class="w-full max-w-lg bg-slate-800/80 backdrop-blur rounded-2xl p-6 border border-indigo-500/30 shadow-2xl hidden">
-    <div class="flex justify-between items-center mb-6">
-     <h2 class="text-xl font-bold text-indigo-300">ข้อที่ <span id="q-num">1</span></h2>
-     <div class="text-emerald-400 font-bold" id="score-display">
-      0/0
-     </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Conversion Master</title>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Sarabun', sans-serif; }
+        .shake { animation: shake 0.4s ease; }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+        .pop { animation: pop 0.3s ease; }
+        @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.08)} 100%{transform:scale(1)} }
+        .input-transition { transition: all 0.3s border-color; }
+    </style>
+</head>
+<body class="h-full bg-slate-900 text-slate-100">
+    <div id="app" class="min-h-full flex flex-col items-center justify-center p-4 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/20 via-slate-900 to-slate-900">
+        
+        <!-- Settings Panel -->
+        <div id="settings-panel" class="w-full max-w-lg bg-slate-800/50 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl">
+            <div class="mb-8 text-center">
+                <h1 id="title" class="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent mb-2">เครื่องมือฝึกแปลงหน่วย</h1>
+                <p class="text-slate-400">ระบุข้อมูล: Number, หุน, มิลลิเมตร</p>
+            </div>
+            
+            <textarea id="data-input" rows="8" class="w-full bg-slate-900/50 text-slate-200 rounded-xl p-4 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition mb-6 text-sm font-mono" placeholder="1,1,3.175..."></textarea>
+            
+            <button id="start-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-indigo-500/20">
+                เริ่มทำแบบทดสอบ
+            </button>
+        </div>
+
+        <!-- Quiz Panel -->
+        <div id="quiz-panel" class="w-full max-w-lg bg-slate-800/50 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl hidden">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <span class="text-indigo-400 text-sm font-bold tracking-wider uppercase">Question</span>
+                    <h2 class="text-2xl font-bold">ข้อที่ <span id="q-num">1</span></h2>
+                </div>
+                <div class="text-right">
+                    <span class="text-slate-400 text-sm font-bold tracking-wider uppercase">Score</span>
+                    <div class="text-2xl font-bold text-emerald-400" id="score-display">0/0</div>
+                </div>
+            </div>
+
+            <div class="space-y-6 mb-8">
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase ml-1">Number</label>
+                        <input id="f-number" type="text" class="input-transition w-full bg-slate-900/50 rounded-xl p-4 border border-slate-700 text-center font-bold focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase ml-1">หุน (Hun)</label>
+                        <input id="f-hun" type="text" class="input-transition w-full bg-slate-900/50 rounded-xl p-4 border border-slate-700 text-center font-bold focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase ml-1">มิลลิเมตร (mm)</label>
+                        <input id="f-mm" type="text" class="input-transition w-full bg-slate-900/50 rounded-xl p-4 border border-slate-700 text-center font-bold focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+            </div>
+
+            <div id="feedback" class="text-center mb-6 h-8 font-bold transition-all"></div>
+
+            <div class="flex flex-col gap-3">
+                <button id="check-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-emerald-500/20">ตรวจคำตอบ</button>
+                <button id="next-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-2xl transition-all hidden">ข้อถัดไป</button>
+                <button id="back-btn" class="w-full py-2 text-slate-500 hover:text-slate-300 text-sm transition mt-2">กลับไปหน้าตั้งค่า</button>
+            </div>
+        </div>
     </div>
-    <div class="grid grid-cols-3 gap-4 mb-6">
-     <div><label class="text-slate-400 text-sm block mb-1">Number</label> <input id="f-number" type="text" class="w-full bg-slate-700 text-slate-100 rounded-lg p-3 border border-slate-600 focus:border-indigo-400 focus:outline-none text-center text-lg font-bold">
-     </div>
-     <div><label class="text-slate-400 text-sm block mb-1">หุน</label> <input id="f-hun" type="text" class="w-full bg-slate-700 text-slate-100 rounded-lg p-3 border border-slate-600 focus:border-indigo-400 focus:outline-none text-center text-lg font-bold">
-     </div>
-     <div><label class="text-slate-400 text-sm block mb-1">มิลลิเมตร</label> <input id="f-mm" type="text" class="w-full bg-slate-700 text-slate-100 rounded-lg p-3 border border-slate-600 focus:border-indigo-400 focus:outline-none text-center text-lg font-bold">
-     </div>
-    </div>
-    <div id="feedback" class="text-center mb-4 h-8 text-lg font-bold"></div>
-    <div class="flex gap-3"><button id="check-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition">ตรวจคำตอบ</button> <button id="next-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition hidden">ข้อถัดไป</button>
-    </div><button id="back-btn" class="w-full mt-3 text-slate-400 hover:text-slate-200 text-sm transition">← กลับหน้าตั้งค่า</button>
-   </div>
-  </div>
-  <script>
-  const defaultConfig = { app_title: 'แบบทดสอบแปลงหน่วย', primary_color: '#6366f1', background_color: '#0f172a', text_color: '#c7d2fe', surface_color: '#1e293b', accent_color: '#10b981' };
 
-  window.elementSdk.init({
-    defaultConfig,
-    onConfigChange: async (config) => {
-      document.getElementById('title').textContent = config.app_title || defaultConfig.app_title;
-    },
-    mapToCapabilities: (config) => ({
-      recolorables: [
-        { get: () => config.background_color || defaultConfig.background_color, set: v => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); } },
-        { get: () => config.surface_color || defaultConfig.surface_color, set: v => { config.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); } },
-        { get: () => config.text_color || defaultConfig.text_color, set: v => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); } },
-        { get: () => config.primary_color || defaultConfig.primary_color, set: v => { config.primary_color = v; window.elementSdk.setConfig({ primary_color: v }); } },
-        { get: () => config.accent_color || defaultConfig.accent_color, set: v => { config.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); } }
-      ],
-      borderables: [],
-      fontEditable: undefined,
-      fontSizeable: undefined
-    }),
-    mapToEditPanelValues: (config) => new Map([['app_title', config.app_title || defaultConfig.app_title]])
-  });
+    <script>
+        let dataset = [];
+        let current = null;
+        let score = { correct: 0, total: 0, index: 0 };
 
-  let dataset = [];
-  let current = null;
-  let hiddenField = '';
-  let correct = 0, total = 0, qIndex = 0;
+        const el = (id) => document.getElementById(id);
+        const inputs = { number: el('f-number'), hun: el('f-hun'), mm: el('f-mm') };
 
-  const settingsPanel = document.getElementById('settings-panel');
-  const quizPanel = document.getElementById('quiz-panel');
-  const dataInput = document.getElementById('data-input');
-  const fNumber = document.getElementById('f-number');
-  const fHun = document.getElementById('f-hun');
-  const fMm = document.getElementById('f-mm');
-  const feedback = document.getElementById('feedback');
-  const checkBtn = document.getElementById('check-btn');
-  const nextBtn = document.getElementById('next-btn');
+        // Pre-fill standard plumbing/bolt sizes
+        el('data-input').value = "1,1,3.175\n2,2,6.35\n3,3,9.525\n4,4,12.7\n5,5,15.875\n6,6,19.05\n7,7,22.225\n8,8,25.4";
 
-  // Default data
-  dataInput.value = '1,1,3.175\n2,2,6.35\n3,3,9.525\n4,4,12.7\n5,5,15.875\n6,6,19.05\n7,7,22.225\n8,8,25.4';
+        el('start-btn').onclick = () => {
+            dataset = el('data-input').value.trim().split('\n').map(line => {
+                const [n, h, m] = line.split(',').map(s => s.trim());
+                return { number: n, hun: h, mm: m };
+            }).filter(d => d.number);
+            
+            if (dataset.length) {
+                score = { correct: 0, total: 0, index: 0 };
+                el('settings-panel').classList.add('hidden');
+                el('quiz-panel').classList.remove('hidden');
+                nextQuestion();
+            }
+        };
 
-  document.getElementById('start-btn').addEventListener('click', () => {
-    dataset = dataInput.value.trim().split('\n').map(line => {
-      const parts = line.split(',').map(s => s.trim());
-      return { number: parts[0], hun: parts[1], mm: parts[2] };
-    }).filter(d => d.number && d.hun && d.mm);
-    if (dataset.length === 0) return;
-    correct = 0; total = 0; qIndex = 0;
-    settingsPanel.classList.add('hidden');
-    quizPanel.classList.remove('hidden');
-    nextQuestion();
-  });
+        function evaluateValue(input) {
+            // Handles simple fractions like 1/2
+            if (input.includes('/')) {
+                const [num, den] = input.split('/').map(Number);
+                return num / den;
+            }
+            return parseFloat(input);
+        }
 
-  document.getElementById('back-btn').addEventListener('click', () => {
-    quizPanel.classList.add('hidden');
-    settingsPanel.classList.remove('hidden');
-  });
+        function nextQuestion() {
+            score.index++;
+            el('q-num').innerText = score.index;
+            current = dataset[Math.floor(Math.random() * dataset.length)];
+            
+            const fields = ['number', 'hun', 'mm'];
+            const hideCount = Math.random() > 0.6 ? 2 : 1; 
+            const shuffled = [...fields].sort(() => 0.5 - Math.random());
+            current._hidden = shuffled.slice(0, hideCount);
 
-  function nextQuestion() {
-    qIndex++;
-    document.getElementById('q-num').textContent = qIndex;
-    current = dataset[Math.floor(Math.random() * dataset.length)];
-    const fields = ['number', 'hun', 'mm'];
-    hiddenField = fields[Math.floor(Math.random() * 3)];
-    // Randomly hide 1 or 2 fields
-    const hideTwo = Math.random() > 0.5;
-    const otherFields = fields.filter(f => f !== hiddenField);
-    const secondHidden = hideTwo ? otherFields[Math.floor(Math.random() * otherFields.length)] : null;
+            fields.forEach(f => {
+                const input = inputs[f];
+                input.classList.remove('border-emerald-500', 'border-red-500', 'bg-slate-800');
+                if (current._hidden.includes(f)) {
+                    input.value = '';
+                    input.disabled = false;
+                    input.placeholder = "?";
+                } else {
+                    input.value = current[f];
+                    input.disabled = true;
+                    input.placeholder = "";
+                    input.classList.add('bg-slate-800');
+                }
+            });
 
-    [fNumber, fHun, fMm].forEach(f => { f.value = ''; f.disabled = false; f.classList.remove('border-emerald-400', 'border-red-400'); });
+            el('feedback').innerText = '';
+            el('check-btn').classList.remove('hidden');
+            el('next-btn').classList.add('hidden');
+        }
 
-    // Show given values, hide others
-    const allHidden = [hiddenField];
-    if (secondHidden) allHidden.push(secondHidden);
+        el('check-btn').onclick = () => {
+            let isAllCorrect = true;
+            current._hidden.forEach(f => {
+                const userVal = inputs[f].value.trim();
+                const isMatch = evaluateValue(userVal) === evaluateValue(current[f]) || userVal === current[f];
+                
+                if (isMatch) {
+                    inputs[f].classList.add('border-emerald-500');
+                } else {
+                    inputs[f].classList.add('border-red-500');
+                    inputs[f].value = `${userVal || '?'} → ${current[f]}`;
+                    isAllCorrect = false;
+                }
+            });
 
-    if (!allHidden.includes('number')) { fNumber.value = current.number; fNumber.disabled = true; }
-    if (!allHidden.includes('hun')) { fHun.value = current.hun; fHun.disabled = true; }
-    if (!allHidden.includes('mm')) { fMm.value = current.mm; fMm.disabled = true; }
+            score.total++;
+            if (isAllCorrect) {
+                score.correct++;
+                el('feedback').innerText = '✨ ยอดเยี่ยม! ถูกต้องทั้งหมด';
+                el('feedback').className = 'text-emerald-400 font-bold pop text-center mb-6 h-8';
+            } else {
+                el('feedback').innerText = '❌ ยังไม่ถูก ลองดูคำตอบที่แก้ให้ด้านบน';
+                el('feedback').className = 'text-red-400 font-bold shake text-center mb-6 h-8';
+            }
 
-    // Store which fields to check
-    current._hidden = allHidden;
+            el('score-display').innerText = `${score.correct}/${score.total}`;
+            el('check-btn').classList.add('hidden');
+            el('next-btn').classList.remove('hidden');
+        };
 
-    feedback.textContent = '';
-    checkBtn.classList.remove('hidden');
-    nextBtn.classList.add('hidden');
-  }
+        el('next-btn').onclick = nextQuestion;
+        el('back-btn').onclick = () => {
+            el('quiz-panel').classList.add('hidden');
+            el('settings-panel').classList.remove('hidden');
+        };
 
-  checkBtn.addEventListener('click', () => {
-    const answers = { number: fNumber.value.trim(), hun: fHun.value.trim(), mm: fMm.value.trim() };
-    let allCorrect = true;
-
-    current._hidden.forEach(field => {
-      const input = field === 'number' ? fNumber : field === 'hun' ? fHun : fMm;
-      if (answers[field] === current[field]) {
-        input.classList.add('border-emerald-400');
-      } else {
-        input.classList.add('border-red-400');
-        input.value = `${answers[field] || '?'} → ${current[field]}`;
-        allCorrect = false;
-      }
-    });
-
-    total++;
-    if (allCorrect) { correct++; feedback.textContent = '✅ ถูกต้อง!'; feedback.className = 'text-center mb-4 h-8 text-lg font-bold text-emerald-400 pop'; }
-    else { feedback.textContent = '❌ ผิด ดูเฉลยด้านบน'; feedback.className = 'text-center mb-4 h-8 text-lg font-bold text-red-400 shake'; }
-
-    document.getElementById('score-display').textContent = `${correct}/${total}`;
-    checkBtn.classList.add('hidden');
-    nextBtn.classList.remove('hidden');
-  });
-
-  nextBtn.addEventListener('click', nextQuestion);
-
-  lucide.createIcons();
-</script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9fadf80bf01c6042',t:'MTc3ODYzNjU3MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+        // Keyboard support
+        window.onkeydown = (e) => {
+            if (e.key === 'Enter') {
+                if (!el('check-btn').classList.contains('hidden')) el('check-btn').click();
+                else if (!el('next-btn').classList.contains('hidden')) el('next-btn').click();
+            }
+        };
+    </script>
+</body>
 </html>
